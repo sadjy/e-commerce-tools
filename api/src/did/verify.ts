@@ -1,8 +1,8 @@
 import { IOTA_NODE_URL, DEVNET } from './config';
 import * as IotaIdentity from 'iota-identity-wasm-test/node';
 
-const verifyVC = (data: string): Promise<boolean> => {
-  return new Promise<boolean>((resolve, reject) => {
+export const verifyVC = (data: string): Promise<any> => {
+  return new Promise<any>((resolve, reject) => {
     console.log('VERIFY VC', data);
 
     IotaIdentity.checkCredential(data, { network: DEVNET ? 'dev' : 'main', node: IOTA_NODE_URL })
@@ -17,7 +17,3 @@ const verifyVC = (data: string): Promise<boolean> => {
       .catch((err: Error) => reject(err));
   });
 };
-
-//const result = verifyVC(JSON.stringify(employee));
-//console.log('result: ', result);
-export default verifyVC;
