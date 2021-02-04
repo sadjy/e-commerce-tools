@@ -32,7 +32,9 @@
   },
   "homepage": "https://github.com/iotaledger/e-commerce-audit-log#readme",
   "dependencies": {
-    "express": "^4.17.1"
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "iota-identity-wasm-test": "0.0.13"
   },
   "devDependencies": {
     "@types/express": "^4.17.11",
