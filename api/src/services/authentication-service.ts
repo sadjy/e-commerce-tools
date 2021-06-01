@@ -68,25 +68,6 @@ export class AuthenticationService {
 		return IdentitiesDb.getIdentity(did, this.serverSecret);
 	}
 
-	createIdentity = async (createIdentityBody: CreateIdentityBody): Promise<IdentityJsonUpdate> => {
-		const identity = await this.identityService.createIdentity();
-		const user: User = {
-			...createIdentityBody,
-			userId: identity.doc.id.toString(),
-			publicKey: identity.key.public
-		};
-
-		await this.ssiService.addUser(user);
-
-		if (createIdentityBody.storeIdentity && this.serverSecret) {
-			await IdentitiesDb.saveIdentity(identity, this.serverSecret);
-		}
-
-		return {
-			...identity
-		};
-	};
-
 	verifyIdentity = async (subject: User, issuerId: string, initiatorId: string) => {
 		const jsonldGen = new JsonldGenerator();
 		const data = jsonldGen.jsonldUserData(subject.type, subject.data);

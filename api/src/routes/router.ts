@@ -1,5 +1,5 @@
 import { ChannelInfoRoutes } from './channel-info';
-import { UserRoutes } from './user';
+import { UserRoutes as SsiRoutes } from './ssi';
 import { Validator } from 'express-json-validator-middleware';
 import { Router } from 'express';
 import { ChannelInfoSchema } from '../models/schemas/channel-info';
@@ -30,13 +30,15 @@ import { hasValidApiKey } from '../middlewares/api-key';
 
 const validator = new Validator({ allErrors: true });
 const validate = validator.validate;
-
-const ssiService = new SelfSovereignIdentityService();
-const authorizationService = new AuthorizationService(ssiService);
-const ssiRoutes = new UserRoutes(ssiService, authorizationService);
-const { getUser, searchUsers, addUser, updateUser, deleteUser } = ssiRoutes;
-export const ssiRouter = Router();
 const { serverSecret, jwtExpiration, serverIdentityId, streamsNode, apiKey } = CONFIG;
+const identityService = IdentityService.getInstance(CONFIG.identityConfig);
+const ssiService = new SelfSovereignIdentityService(identityService, serverSecret);
+const authorizationService = new AuthorizationService(ssiService);
+
+const ssiRoutes = new SsiRoutes(ssiService, authorizationService);
+const { createIdentity, getUser, searchUsers, addUser, updateUser, deleteUser } = ssiRoutes;
+
+export const ssiRouter = Router();
 const authMiddleWare = isAuth(serverSecret);
 const apiKeyMiddleware = hasValidApiKey(apiKey);
 
@@ -57,11 +59,9 @@ channelInfoRouter.post('/channel', apiKeyMiddleware, authMiddleWare, validate({ 
 channelInfoRouter.put('/channel', apiKeyMiddleware, authMiddleWare, validate({ body: ChannelInfoSchema }), updateChannelInfo);
 channelInfoRouter.delete('/channel/:channelAddress', apiKeyMiddleware, authMiddleWare, deleteChannelInfo);
 
-const identityService = IdentityService.getInstance(CONFIG.identityConfig);
 const authenticationService = new AuthenticationService(identityService, ssiService, { jwtExpiration, serverIdentityId, serverSecret });
 const authenticationRoutes = new AuthenticationRoutes(authenticationService, ssiService, authorizationService, CONFIG);
 const {
-	createIdentity,
 	verifyIdentity,
 	checkVerifiableCredential,
 	getNonce,

@@ -11,10 +11,20 @@ import * as userDb from '../database/user';
 import { DeleteWriteOpResultObject, InsertOneWriteOpResult, UpdateWriteOpResult, WithId } from 'mongodb';
 import { getDateFromString, getDateStringFromDate } from '../utils/date';
 import isEmpty from 'lodash/isEmpty';
-import { VerifiableCredentialJson } from '../models/types/identity';
+import { CreateIdentityBody, IdentityJsonUpdate, VerifiableCredentialJson } from '../models/types/identity';
 import { SchemaValidator } from '../utils/validator';
+import { IdentityService } from './identity-service';
+import * as IdentitiesDb from '../database/identities';
 
 export class SelfSovereignIdentityService {
+	private readonly identityService: IdentityService;
+	private readonly serverSecret: string;
+
+	constructor(identityService: IdentityService, serverSecret: string) {
+		this.identityService = identityService;
+		this.serverSecret = serverSecret;
+	}
+
 	searchUsers = async (userSearch: UserSearch): Promise<User[]> => {
 		const usersPersistence = await userDb.searchUsers(userSearch);
 		return usersPersistence.map((user) => this.getUserObject(user));
@@ -36,6 +46,25 @@ export class SelfSovereignIdentityService {
 	getUserByUsername = async (username: string): Promise<User> => {
 		const userPersistence = await userDb.getUserByUsername(username);
 		return this.getUserObject(userPersistence);
+	};
+
+	createIdentity = async (createIdentityBody: CreateIdentityBody): Promise<IdentityJsonUpdate> => {
+		const identity = await this.identityService.createIdentity();
+		const user: User = {
+			...createIdentityBody,
+			userId: identity.doc.id.toString(),
+			publicKey: identity.key.public
+		};
+
+		await this.addUser(user);
+
+		if (createIdentityBody.storeIdentity && this.serverSecret) {
+			await IdentitiesDb.saveIdentity(identity, this.serverSecret);
+		}
+
+		return {
+			...identity
+		};
 	};
 
 	addUser = async (user: User): Promise<InsertOneWriteOpResult<WithId<unknown>>> => {

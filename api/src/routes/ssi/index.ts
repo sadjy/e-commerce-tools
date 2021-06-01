@@ -6,6 +6,7 @@ import { StatusCodes } from 'http-status-codes';
 import { getDateFromString } from '../../utils/date';
 import { AuthenticatedRequest } from '../../models/types/authentication';
 import { AuthorizationService } from '../../services/authorization-service';
+import { CreateIdentityBody } from '../../models/types/identity';
 
 export class UserRoutes {
 	private readonly ssiService: SelfSovereignIdentityService;
@@ -20,6 +21,17 @@ export class UserRoutes {
 			const userSearch = this.getUserSearch(req);
 			const users = await this.ssiService.searchUsers(userSearch);
 			res.send(users);
+		} catch (error) {
+			next(error);
+		}
+	};
+
+	createIdentity = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+		try {
+			const createIdentityBody: CreateIdentityBody = req.body;
+			const identity = await this.ssiService.createIdentity(createIdentityBody);
+
+			res.status(StatusCodes.CREATED).send(identity);
 		} catch (error) {
 			next(error);
 		}
