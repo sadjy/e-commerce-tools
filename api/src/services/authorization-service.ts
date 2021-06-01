@@ -1,12 +1,12 @@
-import { UserService } from './user-service';
+import { SelfSovereignIdentityService } from './ssi-service';
 import { AuthorizationCheck } from '../models/types/authentication';
 import { User, UserType, UserRoles } from '../models/types/user';
 
 export class AuthorizationService {
-	private readonly userService: UserService;
+	private readonly ssiService: SelfSovereignIdentityService;
 
-	constructor(userService: UserService) {
-		this.userService = userService;
+	constructor(ssiService: SelfSovereignIdentityService) {
+		this.ssiService = ssiService;
 	}
 
 	isAuthorized = async (requestUser: User, userId: string): Promise<AuthorizationCheck> => {
@@ -33,7 +33,7 @@ export class AuthorizationService {
 		if (role === UserRoles.Admin) {
 			return true;
 		} else if (role === UserRoles.Manager) {
-			const user = await this.userService.getUser(userId);
+			const user = await this.ssiService.getUser(userId);
 			const hasSameOrganization = requestUser.organization === user?.organization;
 			if (hasSameOrganization) {
 				return true;

@@ -1,14 +1,14 @@
 import { ChannelInfo, ChannelInfoPersistence, ChannelInfoSearch } from '../models/types/channel-info';
 import * as ChannelInfoDb from '../database/channel-info';
 import { DeleteWriteOpResultObject, InsertOneWriteOpResult, UpdateWriteOpResult, WithId } from 'mongodb';
-import { UserService } from './user-service';
+import { SelfSovereignIdentityService } from './ssi-service';
 import { getDateFromString, getDateStringFromDate } from '../utils/date';
 import isEmpty from 'lodash/isEmpty';
 
 export class ChannelInfoService {
-	private readonly userService: UserService;
-	constructor(userService: UserService) {
-		this.userService = userService;
+	private readonly ssiService: SelfSovereignIdentityService;
+	constructor(ssiService: SelfSovereignIdentityService) {
+		this.ssiService = ssiService;
 	}
 
 	getChannelInfo = async (channelAddress: string): Promise<ChannelInfo | null> => {
@@ -20,7 +20,7 @@ export class ChannelInfoService {
 		let channelInfoPersistence: ChannelInfoPersistence[] = [];
 
 		if (channelInfoSearch.author && !channelInfoSearch.authorId) {
-			const authorId = (await this.userService.getUserByUsername(channelInfoSearch.author))?.userId;
+			const authorId = (await this.ssiService.getUserByUsername(channelInfoSearch.author))?.userId;
 
 			if (!authorId) {
 				throw Error(`No user id found for: ${channelInfoSearch.author}`);

@@ -1,7 +1,7 @@
 import { DeviceIdentityMock, ServerIdentityMock } from '../../../test/mocks/identities';
 import * as IdentitiesDb from '../../../database/identities';
 import { IdentityService } from '../../../services/identity-service';
-import { UserService } from '../../../services/user-service';
+import { SelfSovereignIdentityService } from '../../../services/ssi-service';
 import { AuthenticationService } from '../../../services/authentication-service';
 import { IdentityConfig } from '../../../models/config';
 import { StatusCodes } from 'http-status-codes';
@@ -14,7 +14,7 @@ const vcToCheck = DeviceIdentityMock.userData.verifiableCredentials[0];
 describe('test authentication routes', () => {
 	const serverSecret = 'very-secret-secret';
 	let sendMock: any, sendStatusMock: any, nextMock: any, res: any;
-	let userService: UserService;
+	let ssiService: SelfSovereignIdentityService;
 	let identityService: IdentityService, authenticationService: AuthenticationService, authenticationRoutes: AuthenticationRoutes;
 	beforeEach(() => {
 		sendMock = jest.fn();
@@ -33,14 +33,14 @@ describe('test authentication routes', () => {
 			hashEncoding: 'base58'
 		};
 		identityService = IdentityService.getInstance(identityConfig);
-		userService = new UserService();
-		const authorizationService = new AuthorizationService(userService);
-		authenticationService = new AuthenticationService(identityService, userService, {
+		ssiService = new SelfSovereignIdentityService();
+		const authorizationService = new AuthorizationService(ssiService);
+		authenticationService = new AuthenticationService(identityService, ssiService, {
 			jwtExpiration: '2 days',
 			serverSecret,
 			serverIdentityId: ServerIdentityMock.doc.id
 		});
-		authenticationRoutes = new AuthenticationRoutes(authenticationService, userService, authorizationService, config);
+		authenticationRoutes = new AuthenticationRoutes(authenticationService, ssiService, authorizationService, config);
 
 		res = {
 			send: sendMock,

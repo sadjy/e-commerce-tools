@@ -7,7 +7,7 @@ import { UpdateUserSchema, UserSchema, UserWithoutIdSchema } from '../models/sch
 import { AuthenticationRoutes } from './authentication';
 import { AuthenticationService } from '../services/authentication-service';
 import { CONFIG } from '../config';
-import { UserService } from '../services/user-service';
+import { SelfSovereignIdentityService } from '../services/ssi-service';
 import { ChannelInfoService } from '../services/channel-info-service';
 import { IdentityService } from '../services/identity-service';
 import { RevokeVerificationSchema, VerifyIdentitySchema } from '../models/schemas/authentication';
@@ -31,22 +31,22 @@ import { hasValidApiKey } from '../middlewares/api-key';
 const validator = new Validator({ allErrors: true });
 const validate = validator.validate;
 
-const userService = new UserService();
-const authorizationService = new AuthorizationService(userService);
-const userRoutes = new UserRoutes(userService, authorizationService);
-const { getUser, searchUsers, addUser, updateUser, deleteUser } = userRoutes;
-export const userRouter = Router();
+const ssiService = new SelfSovereignIdentityService();
+const authorizationService = new AuthorizationService(ssiService);
+const ssiRoutes = new UserRoutes(ssiService, authorizationService);
+const { getUser, searchUsers, addUser, updateUser, deleteUser } = ssiRoutes;
+export const ssiRouter = Router();
 const { serverSecret, jwtExpiration, serverIdentityId, streamsNode, apiKey } = CONFIG;
 const authMiddleWare = isAuth(serverSecret);
 const apiKeyMiddleware = hasValidApiKey(apiKey);
 
-userRouter.get('/user/:userId', apiKeyMiddleware, getUser);
-userRouter.get('/search', apiKeyMiddleware, authMiddleWare, searchUsers);
-userRouter.post('/user', apiKeyMiddleware, validate({ body: UserSchema }), addUser);
-userRouter.put('/user', apiKeyMiddleware, authMiddleWare, validate({ body: UpdateUserSchema }), updateUser);
-userRouter.delete('/user/:userId', apiKeyMiddleware, authMiddleWare, deleteUser);
+ssiRouter.get('/search', apiKeyMiddleware, authMiddleWare, searchUsers);
+ssiRouter.get('/identity/:userId', apiKeyMiddleware, getUser);
+ssiRouter.post('/identity', apiKeyMiddleware, validate({ body: UserSchema }), addUser);
+ssiRouter.put('/identity', apiKeyMiddleware, authMiddleWare, validate({ body: UpdateUserSchema }), updateUser);
+ssiRouter.delete('/identity/:userId', apiKeyMiddleware, authMiddleWare, deleteUser);
 
-const channelInfoService = new ChannelInfoService(userService);
+const channelInfoService = new ChannelInfoService(ssiService);
 const channelInfoRoutes = new ChannelInfoRoutes(channelInfoService, authorizationService);
 const { getChannelInfo, addChannelInfo, updateChannelInfo, deleteChannelInfo, searchChannelInfo } = channelInfoRoutes;
 export const channelInfoRouter = Router();
@@ -58,8 +58,8 @@ channelInfoRouter.put('/channel', apiKeyMiddleware, authMiddleWare, validate({ b
 channelInfoRouter.delete('/channel/:channelAddress', apiKeyMiddleware, authMiddleWare, deleteChannelInfo);
 
 const identityService = IdentityService.getInstance(CONFIG.identityConfig);
-const authenticationService = new AuthenticationService(identityService, userService, { jwtExpiration, serverIdentityId, serverSecret });
-const authenticationRoutes = new AuthenticationRoutes(authenticationService, userService, authorizationService, CONFIG);
+const authenticationService = new AuthenticationService(identityService, ssiService, { jwtExpiration, serverIdentityId, serverSecret });
+const authenticationRoutes = new AuthenticationRoutes(authenticationService, ssiService, authorizationService, CONFIG);
 const {
 	createIdentity,
 	verifyIdentity,
