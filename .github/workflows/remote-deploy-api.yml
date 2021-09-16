@@ -16,7 +16,7 @@ jobs:
         uses: sadjy/ssh-action@master
         with: 
           command: |
-            ssh ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_INSTANCE_IP }} -p ${{ secrets.REMOTE_INSTANCE_SSH_PORT }} aws ecr get-login-password --region ${{ secrets.AWS_DEFAULT_REGION }} | docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_DEFAULT_REGION }}.amazonaws.com
+            ssh ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_INSTANCE_IP }} -p ${{ secrets.REMOTE_INSTANCE_SSH_PORT }} "aws ecr get-login-password --region ${{ secrets.AWS_DEFAULT_REGION }} | docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_DEFAULT_REGION }}.amazonaws.com"
           host: ${{ secrets.HOST }}
           user: ${{ secrets.USER }}
           key: ${{ secrets.SSH_KEY}}
