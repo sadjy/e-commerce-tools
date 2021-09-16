@@ -13,7 +13,7 @@ jobs:
         run: echo "GIT_SHA=$(git rev-parse --short "$GITHUB_SHA")" >> $GITHUB_ENV
 
       - name: Load SSH key
-        use: sadjy/ssh-action@master
+        uses: sadjy/ssh-action@master
         with:
           command: |
             mkdir -p ~/.ssh && echo "StrictHostKeyChecking no" >> ~/.ssh/config
