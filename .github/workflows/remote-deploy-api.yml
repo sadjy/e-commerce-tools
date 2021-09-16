@@ -16,14 +16,14 @@ jobs:
         use: sadjy/ssh-action@master
         with:
           command: |
-          mkdir -p ~/.ssh && echo "StrictHostKeyChecking no" >> ~/.ssh/config
-          eval "$(ssh-agent -s)"
-          ssh-add - <<< "${{ secrets.REMOTE_INSTANCE_SSH_KEY }}" 
-          echo "SSH_AGENT_PID=$SSH_AGENT_PID" >> $GITHUB_ENV 
-          echo "SSH_AUTH_SOCK=$SSH_AUTH_SOCK" >> $GITHUB_ENV
-        host: ${{ secrets.HOST }}
-        user: ${{ secrets.USER }}
-        key: ${{ secrets.SSH_KEY}}
+            mkdir -p ~/.ssh && echo "StrictHostKeyChecking no" >> ~/.ssh/config
+            eval "$(ssh-agent -s)"
+            ssh-add - <<< "${{ secrets.REMOTE_INSTANCE_SSH_KEY }}" 
+            echo "SSH_AGENT_PID=$SSH_AGENT_PID" >> $GITHUB_ENV 
+            echo "SSH_AUTH_SOCK=$SSH_AUTH_SOCK" >> $GITHUB_ENV
+          host: ${{ secrets.HOST }}
+          user: ${{ secrets.USER }}
+          key: ${{ secrets.SSH_KEY}}
       # - name: AWS and ECR login
       #   uses: sadjy/ssh-action@master
       #   with:
