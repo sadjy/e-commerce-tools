@@ -1,4 +1,4 @@
-name: Deploy API
+name: Deploy API to VM
 
 on:
   workflow_dispatch:
