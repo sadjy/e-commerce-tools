@@ -12,6 +12,15 @@ jobs:
       - name: Setting env
         run: echo "GIT_SHA=$(git rev-parse --short "$GITHUB_SHA")" >> $GITHUB_ENV
 
+      - name: ECR login
+        uses: sadjy/ssh-action@master
+        with: 
+          command: |
+            aws ecr get-login-password --region ${{ secrets.AWS_DEFAULT_REGION }} | docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_DEFAULT_REGION }}.amazonaws.com
+          host: ${{ secrets.HOST }}
+          user: ${{ secrets.USER }}
+          key: ${{ secrets.SSH_KEY}}
+
       - name: Remote deploy API
         uses: sadjy/ssh-action@master
         with:
